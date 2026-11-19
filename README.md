@@ -1,16 +1,34 @@
-# React + Vite
+﻿# Cloud DevOps
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Site acadêmico de DevOps e Computação em Nuvem em React e Vite. A página percorre a publicação da imagem Docker, a preparação do servidor e o uso do mesmo playbook Ansible em dois ambientes Ubuntu.
 
-Currently, two official plugins are available:
+## Executar localmente
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Na raiz do repositório, instale as dependências e inicie o servidor de desenvolvimento.
 
-## React Compiler
+```sh
+npm ci
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Use `npm run lint` para verificar o código, `npm run build` para gerar o site em `dist/` e `npm run preview` para conferir esse build.
 
-## Expanding the ESLint configuration
+## Onde editar
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Alteração | Arquivo ou pasta |
+| --- | --- |
+| Ordem dos capítulos | `src/pages/home/HomePage.jsx` |
+| Conteúdo de um capítulo | Componente correspondente em `src/pages/home/sections/` |
+| Capa, desenho do servidor e faixa de tecnologias | `src/pages/home/sections/opening/` |
+| Diagrama de arquitetura | `sections/Architecture.jsx` e `sections/Architecture.css`, dentro da home |
+| Diagrama de portabilidade | `sections/Portability.jsx` e `sections/portability.css`, dentro da home |
+| Estilos comuns dos capítulos e entradas na rolagem | `src/pages/home/home.css` |
+| Cabeçalho, menu, marca e rodapé | `src/components/layout/` |
+| Acesso à apresentação | `src/components/PresentationButton.jsx`, usado pelo menu, pela capa e pelo encerramento |
+| Comportamento das animações | `src/hooks/` |
+| Paleta, tipografia e espaçamentos | `src/styles/tokens.css` |
+| Foco, links e estilos compartilhados | `src/styles/global.css` |
+| Logos das ferramentas | `src/assets/architecture/` |
+| Favicon e créditos publicados | `public/` |
+
+`src/main.jsx` inicia o React. `src/App.jsx` monta o cabeçalho, a home e o rodapé e cuida da navegação por âncoras. Os três acessos à apresentação usam um botão nativo desabilitado. Quando os slides estiverem disponíveis, o componente compartilhado é o ponto para conectar a rota.
