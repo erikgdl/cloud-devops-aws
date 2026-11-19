@@ -1,0 +1,130 @@
+.port {
+  border-top: 1px solid var(--divider);
+}
+.destinations dd {
+  color: var(--secondary);
+}
+.destinations {
+  margin: 0;
+}
+.destinations dt {
+  font: 520 clamp(1.35rem, 2.2vw, 1.9rem) / 1.2 var(--display);
+  letter-spacing: -0.035em;
+}
+.port-source small {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--etch);
+}
+.destinations dd {
+  margin: 8px 0 0;
+  max-width: 55ch;
+}
+.port-source .tool-mark,
+.destinations dt .tool-mark,
+.port-runtime .tool-mark {
+  width: 52px;
+  height: 52px;
+}
+.port {
+  padding-block: var(--section);
+}
+.port-route {
+  --branch: clamp(22px, 4vw, 70px);
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: center;
+  margin-block: 32px;
+}
+.port-source {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+.port-source strong {
+  font: 540 clamp(1.35rem, 2.2vw, 2rem) / 1.12 var(--display);
+}
+.port-source::after {
+  content: '';
+  border-top: 1px solid var(--etch);
+}
+.destinations > div {
+  position: relative;
+  padding: 18px 0 18px var(--branch);
+}
+.destinations > div::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: var(--branch);
+  border-left: 1px solid var(--etch);
+}
+.destinations > div:first-child::before {
+  top: 44px;
+  bottom: 0;
+  border-top: 1px solid var(--etch);
+}
+.destinations > div:last-child::before {
+  top: 0;
+  height: 44px;
+  border-bottom: 1px solid var(--etch);
+}
+.destinations dt,
+.port-runtime {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.destinations dd {
+  margin-left: 68px;
+}
+.destinations dd .tool-mark {
+  vertical-align: -0.14em;
+}
+.port-runtime {
+  padding: clamp(18px, 2.5vw, 32px);
+  background: var(--blue-depth);
+  border-left: 3px solid var(--blue);
+}
+.port-runtime h3 {
+  font-size: clamp(1.4rem, 2vw, 1.8rem);
+  margin-bottom: 6px;
+}
+.port-runtime p {
+  max-width: 72ch;
+  color: var(--secondary);
+}
+
+@media (max-width: 800px) {
+  .port-route {
+    grid-template-columns: 1fr;
+  }
+  .port-source {
+    grid-template-columns: auto 1fr;
+  }
+  .port-source::after {
+    display: none;
+  }
+  .destinations {
+    margin-left: 26px;
+  }
+  .destinations > div:first-child::before {
+    top: 0;
+    border-top: 0;
+  }
+  .destinations > div:first-child::after {
+    content: '';
+    position: absolute;
+    top: 44px;
+    left: 0;
+    width: var(--branch);
+    border-top: 1px solid var(--etch);
+  }
+  .destinations dd {
+    margin-left: 0;
+  }
+  .port-runtime {
+    align-items: flex-start;
+  }
+}
