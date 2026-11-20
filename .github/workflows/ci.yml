@@ -1,0 +1,41 @@
+
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Validar aplicacao
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v6
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Executar lint (quando disponivel)
+        run: npm run lint --if-present
+
+      - name: Compilar aplicacao React
+        run: npm run build
+
+      - name: Validar build Docker
+        run: docker build -t cloud-devops-aws:ci .
