@@ -30,3 +30,6 @@ dist-ssr
 *.tfstate.*
 *.tfvars
 *.tfvars.json
+
+# Ansible
+/ansible/inventory.ini
