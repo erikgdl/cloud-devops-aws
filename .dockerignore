@@ -1,0 +1,31 @@
+# Only the inputs required to build and serve the application are included.
+**
+!Dockerfile
+!.dockerignore
+!package.json
+!package-lock.json
+!index.html
+!vite.config.js
+!nginx.conf
+!src/
+!src/**
+!public/
+!public/**
+
+# Keep sensitive and temporary files excluded even inside allowed directories.
+**/.env
+**/.env.*
+**/.npmrc
+**/*.pem
+**/*.key
+**/*.log
+**/*.tmp
+**/*.swp
+**/*~
+**/.DS_Store
+**/node_modules
+**/dist
+**/.git
+**/.cache
+**/.idea
+**/.vscode
