@@ -83,7 +83,8 @@ resource "aws_instance" "devops" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
 
-  subnet_id = sort(data.aws_subnets.default.ids)[0]
+  subnet_id            = sort(data.aws_subnets.default.ids)[0]
+  iam_instance_profile = aws_iam_instance_profile.ec2_ssm.name
 
   vpc_security_group_ids = [
     aws_security_group.devops.id
