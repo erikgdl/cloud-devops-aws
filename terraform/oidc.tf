@@ -20,7 +20,7 @@ resource "aws_iam_role" "github_deploy" {
       Condition = {
         StringEquals = {
           "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-          "token.actions.githubusercontent.com:sub" = "repo:erikgdl/cloud-devops-aws:ref:refs/heads/master"
+          "token.actions.githubusercontent.com:sub" = "repo:erikgdl@176636003/cloud-devops-aws@1463464914:ref:refs/heads/master"
         }
       }
     }]
