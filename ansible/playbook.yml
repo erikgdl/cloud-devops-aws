@@ -36,10 +36,18 @@
         content: |
           services:
             web:
-              image: "{{ app_image }}"
+              image: "${APP_IMAGE}"
               ports:
                 - "80:8080"
               restart: unless-stopped
+
+    - name: Criar arquivo inicial da versao
+      ansible.builtin.copy:
+        dest: "{{ app_dir }}/.env"
+        mode: "0644"
+        content: |
+          APP_IMAGE={{ app_image }}
+        force: false
 
     - name: Baixar imagem e iniciar aplicacao
       ansible.builtin.command:
