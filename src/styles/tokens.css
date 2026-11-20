@@ -1,0 +1,28 @@
+:root {
+  --night: #0b1018;
+  --white: #ffffff;
+  --blue: #2854ff;
+  --acid: #b8f135;
+  --ink: #15191f;
+  --paper: #f4f5f1;
+  --line: #d8dcd7;
+  --muted: #667078;
+  color-scheme: dark;
+  --plate: color-mix(in srgb, var(--blue) 9%, var(--night));
+  --blue-depth: color-mix(in srgb, var(--blue) 24%, var(--night));
+  --blue-face: color-mix(in srgb, var(--blue) 48%, var(--night));
+  --etch: color-mix(in srgb, var(--blue) 55%, var(--paper));
+  --secondary: color-mix(in srgb, var(--paper) 73%, var(--blue-depth));
+  --divider: color-mix(in srgb, var(--etch) 23%, var(--night));
+  --rack-side: color-mix(in srgb, var(--blue) 30%, var(--night));
+  --sans: 'Segoe UI', Arial, sans-serif;
+  --display: 'Bahnschrift', 'Arial Nova', Arial, sans-serif;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --mono: 'Cascadia Mono', Consolas, monospace;
+  --measure: 78rem;
+  --mast-height: 74px;
+  --gutter: clamp(22px, 6vw, 96px);
+  --bleed: clamp(10px, 2.4vw, 38px);
+  --column-gap: clamp(24px, 5vw, 72px);
+  --section: clamp(52px, 6.5vw, 94px);
+}

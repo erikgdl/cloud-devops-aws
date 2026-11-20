@@ -1,0 +1,44 @@
+Cloud DevOps — créditos dos ícones
+
+Ubuntu logoib.svg — Bear17, Wikimedia Commons
+https://commons.wikimedia.org/wiki/File:Ubuntu_logoib.svg
+Licença Creative Commons Atribuição-CompartilhaIgual 4.0 Internacional
+https://creativecommons.org/licenses/by-sa/4.0/
+SVG original, exibido em escala.
+
+AWS, Ansible e Terraform — Devicon 2.17.0
+https://github.com/devicons/devicon/tree/v2.17.0
+A marca AWS usa a versão monocromática branca sobre fundo transparente.
+
+GitHub — Icons8
+https://icons8.com/icon/62856/github
+https://img.icons8.com/?size=100&id=62856&format=png&color=FFFFFF
+
+GitHub Actions e Docker — Simple Icons 11.15.0
+https://github.com/simple-icons/simple-icons/tree/11.15.0
+CC0 1.0 Universal
+https://creativecommons.org/publicdomain/zero/1.0/
+Os símbolos recebem as cores usadas na apresentação.
+
+Devicon — licença
+The MIT License (MIT)
+
+Copyright (c) 2015 konpa
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
