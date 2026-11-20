@@ -1,0 +1,61 @@
+---
+- name: Configurar e implantar Cloud DevOps
+  hosts: all
+  become: true
+
+  vars:
+    app_dir: /opt/cloud-devops-aws
+    app_image: ghcr.io/erikgdl/cloud-devops-aws:latest
+
+  tasks:
+    - name: Instalar Docker e Docker Compose
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - docker-compose-v2
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Habilitar e iniciar Docker
+      ansible.builtin.systemd_service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Criar diretorio da aplicacao
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Configurar Docker Compose
+      ansible.builtin.copy:
+        dest: "{{ app_dir }}/compose.yml"
+        mode: "0644"
+        content: |
+          services:
+            web:
+              image: "{{ app_image }}"
+              ports:
+                - "80:8080"
+              restart: unless-stopped
+
+    - name: Baixar imagem e iniciar aplicacao
+      ansible.builtin.command:
+        cmd: docker compose up -d --pull always
+        chdir: "{{ app_dir }}"
+      register: compose_result
+      changed_when: >-
+        'Created' in compose_result.stderr or
+        'Recreated' in compose_result.stderr or
+        'Started' in compose_result.stderr
+
+    - name: Verificar resposta HTTP
+      ansible.builtin.uri:
+        url: http://127.0.0.1/
+        status_code: 200
+      register: http_result
+      retries: 10
+      delay: 3
+      until: http_result.status == 200
