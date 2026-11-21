@@ -90,7 +90,7 @@ jobs:
               ("docker pull " + $image),
               ("printf \"APP_IMAGE=%s\\n\" " + $image + " > .env"),
               "docker compose up -d --pull never",
-              "curl -fsS --retry 10 --retry-connrefused --retry-delay 3 http://127.0.0.1/ > /dev/null"
+              "curl -fsS --retry 10 --retry-connrefused --retry-delay 3 http://127.0.0.1:8080/ > /dev/null"
             ]
           }')
 
