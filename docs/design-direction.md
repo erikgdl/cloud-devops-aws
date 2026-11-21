@@ -8,7 +8,7 @@ A arquitetura operacional é descrita em [Arquitetura da solução](arquitetura.
 
 [HomePage.jsx](../src/pages/home/HomePage.jsx) apresenta sete seções: abertura, problema, solução, arquitetura, tecnologias, portabilidade e defesa.
 A navegação usa âncoras na mesma página, com tratamento de foco em [App.jsx](../src/App.jsx).
-Não há roteador por caminhos nem página de slides integrada.
+A apresentação integrada usa o fragmento `#/apresentacao/1`; não depende de um roteador por caminhos no servidor.
 
 A capa combina o título com uma vista axonométrica do registro de imagens, do host Ubuntu e da aplicação HTTP.
 O desenho é construído em SVG por [SignalField.jsx](../src/pages/home/sections/opening/SignalField.jsx).
@@ -63,8 +63,13 @@ Textos e diagramas da interface ainda mencionam ECR Public, enquanto o pipeline 
 A representação de portabilidade não comprova implantação nos dois destinos ilustrados.
 As divergências foram preservadas no código e registradas em [Pontos para revisão técnica](operacao-e-seguranca.md#pontos-para-revisão-técnica).
 
-Os três acessos à apresentação utilizam [PresentationButton.jsx](../src/components/PresentationButton.jsx), que renderiza um botão nativo desabilitado.
-Não existe link ativo para slides ou rota de apresentação.
+Os três acessos utilizam [PresentationButton.jsx](../src/components/PresentationButton.jsx), que renderiza um link para a apresentação N2.
+Os 18 slides reaproveitam os tokens e logos da home, com composições próprias para fluxos, rede, tabelas e etapas de implantação.
+O palco horizontal mostra um slide por vez; os controles compartilham uma barra inferior compacta.
+Em tela cheia, a barra pode ser aberta em um botão sobreposto no canto, preservando a área do slide.
+A navegação oferece teclado, visão geral e tela cheia, com loops automáticos e sem botão de pausa.
+A preferência de movimento reduzido também desativa as animações dos slides.
+Os detalhes de uso e manutenção estão em [Apresentação N2](apresentacao.md).
 
 ## Documentos relacionados
 
