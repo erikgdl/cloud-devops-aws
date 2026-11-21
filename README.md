@@ -1,257 +1,170 @@
-﻿# Cloud DevOps
+# Cloud DevOps
 
-Site acadêmico de DevOps e Computação em Nuvem em React e Vite. A página percorre a publicação da imagem Docker, a preparação do servidor e o uso do mesmo playbook Ansible em dois ambientes Ubuntu.
+Infraestrutura AWS em código, configuração de servidores Ubuntu e entrega de uma aplicação web em contêineres.
 
-## Executar localmente
+[![CI](https://github.com/erikgdl/cloud-devops-aws/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/erikgdl/cloud-devops-aws/actions/workflows/ci.yml)
+[![CD](https://github.com/erikgdl/cloud-devops-aws/actions/workflows/cd.yml/badge.svg?branch=master)](https://github.com/erikgdl/cloud-devops-aws/actions/workflows/cd.yml)
 
-Na raiz do repositório, instale as dependências e inicie o servidor de desenvolvimento.
+O projeto aborda a reprodução de ambientes configurados manualmente.
+Terraform descreve os recursos na AWS, Ansible prepara o servidor e Docker distribui a aplicação.
+O GitHub Actions valida o código, publica a imagem no GitHub Container Registry (GHCR) e atualiza a EC2 por AWS Systems Manager (SSM).
+
+A aplicação React/Vite apresenta o trabalho acadêmico **Anatomia de um deploy**, de DevOps e Computação em Nuvem.
+Ela também é o artefato estático entregue pela infraestrutura.
+
+**[Explorar a documentação](docs/README.md)** · **[Reproduzir a implantação](docs/implantacao.md)** · **[Consultar os workflows](.github/workflows/)**
+
+## Sumário
+
+- [Visão geral](#visão-geral)
+- [Tecnologias e responsabilidades](#tecnologias-e-responsabilidades)
+- [Arquitetura](#arquitetura)
+- [Início rápido](#início-rápido)
+- [Implantação e portabilidade](#implantação-e-portabilidade)
+- [Operação e segurança](#operação-e-segurança)
+- [Estrutura do repositório](#estrutura-do-repositório)
+- [Documentação técnica](#documentação-técnica)
+- [Contexto acadêmico e créditos](#contexto-acadêmico-e-créditos)
+- [Contribuição e licença](#contribuição-e-licença)
+
+## Visão geral
+
+O repositório implementa três responsabilidades complementares:
+
+1. **Provisionar:** Terraform cria EC2 Ubuntu, Elastic IP, regras de acesso e permissões IAM, utilizando a VPC padrão existente.
+2. **Configurar:** Ansible instala Docker/Compose e gera a configuração de aplicação, proxy HTTPS e monitoramento.
+3. **Entregar:** GitHub Actions publica imagens com tags `latest` e SHA do commit; o CD implanta a tag SHA.
+
+No servidor, Caddy encaminha requisições para Nginx e Uptime Kuma.
+O frontend não possui API própria ou banco de dados.
+A persistência do monitoramento e do Caddy utiliza volumes Docker.
+
+## Tecnologias e responsabilidades
+
+| Tecnologia | Uso neste projeto |
+| --- | --- |
+| React e Vite | Componentes da página e compilação de arquivos estáticos |
+| Nginx | Servidor da aplicação na porta interna `8080` |
+| Docker e Compose | Imagem em múltiplos estágios e execução dos serviços |
+| Terraform e AWS | EC2, Elastic IP, Security Group, IAM e integração SSM |
+| Ansible | Instalação de pacotes e configuração declarativa do host Ubuntu |
+| GitHub Actions e GHCR | Validação, publicação da imagem e atualização remota |
+| Caddy | Proxy reverso e HTTPS automático para os domínios configurados |
+| Uptime Kuma | Serviço para cadastrar monitores de disponibilidade |
+
+As escolhas e os limites de cada camada estão em [Arquitetura](docs/arquitetura.md).
+
+## Arquitetura
+
+```mermaid
+flowchart LR
+    Git["Código no GitHub"] --> CI["CI: lint e builds"]
+    CI --> CD["CD: publicar e implantar"]
+    CD --> GHCR["Imagem no GHCR"]
+    TF["Terraform"] --> AWS["EC2 Ubuntu na AWS"]
+    AN["Ansible via SSH"] --> AWS
+    CD --> SSM["AWS SSM"]
+    SSM --> AWS
+    GHCR -->|"pull da imagem"| AWS
+    AWS --> STACK["Compose: Caddy, web e Uptime Kuma"]
+```
+
+Terraform e Ansible são executados manualmente; os workflows não os executam.
+O CD pressupõe que o host já foi configurado e está disponível no SSM.
+Veja a [arquitetura detalhada e a comunicação dos serviços](docs/arquitetura.md).
+
+## Início rápido
+
+Para desenvolver o frontend, utilize **Node.js 24 e npm**, seguindo a versão principal utilizada pelo Dockerfile.
+Execute na raiz do clone:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Use `npm run lint` para verificar o código, `npm run build` para gerar o site em `dist/` e `npm run preview` para conferir esse build.
+Abra o endereço exibido pelo Vite.
+Os comandos `npm run lint`, `npm run build` e `npm run preview` verificam o código, geram `dist/` e permitem conferir o build.
 
-## Executar com Docker em produção
+Para executar a aplicação estática com **Docker para contêineres Linux e Compose v2**, use Bash, por exemplo no Linux ou WSL:
 
-É necessário Docker com suporte a containers Linux e Docker Compose v2 ou posterior.
-Node.js não precisa estar instalado na máquina que constrói ou executa a imagem.
-
-```sh
+```bash
 docker build -t cloud-devops:local .
-docker compose config
-docker compose up -d
-docker compose ps
-curl -I http://localhost/
+HTTP_PORT=8080 docker compose config --quiet
+HTTP_PORT=8080 docker compose up -d
+curl -I http://localhost:8080/
 ```
 
-Abra `http://localhost/`. Para parar e remover o container e a rede padrão do Compose:
+O Compose da raiz executa somente a aplicação, sem Caddy ou Kuma.
+Ele utiliza uma imagem pronta e não realiza o build.
+Para encerrar: `docker compose down`.
+Consulte [Desenvolvimento e Docker](docs/desenvolvimento.md) para variáveis, outros shells e verificações.
 
-```sh
-docker compose down
+## Implantação e portabilidade
+
+- **AWS:** o Terraform depende de credenciais, backend S3, VPC padrão, chave SSH e provedor OIDC previamente preparados.
+- **Ubuntu fora da AWS:** o playbook pode configurar um host compatível por SSH, sem utilizar as APIs da AWS.
+  É necessário atender aos requisitos de sistema, rede, imagens e domínios.
+- **Docker local:** a aplicação pode ser construída e executada sem provisionar recursos AWS.
+- **CD:** a implementação atual é específica para uma EC2 e para o ambiente AWS original.
+  Ela não é automaticamente transferida para outro servidor ou fork.
+
+O [guia de implantação](docs/implantacao.md) apresenta os procedimentos e as condições de reprodução.
+Não há evidência versionada suficiente para afirmar que todos os ambientes citados na interface foram testados.
+
+## Operação e segurança
+
+No Compose gerado pelo Ansible, Caddy publica TCP `80/443`.
+Aplicação e Kuma também possuem acessos de diagnóstico em `127.0.0.1:8080` e `127.0.0.1:3001` no host.
+**O Caddy também expõe o Kuma pelo domínio configurado**, apesar de sua porta direta estar em loopback.
+
+O Terraform exige IMDSv2, criptografa o volume raiz e restringe SSH por CIDR.
+O CD utiliza credenciais temporárias via OIDC.
+A administração do Kuma, a configuração dos monitores, os backups e a validação externa do HTTPS exigem atuação do operador.
+
+Consulte [Operação e segurança](docs/operacao-e-seguranca.md) antes de publicar o ambiente ou manipular volumes e credenciais.
+
+## Estrutura do repositório
+
+```text
+.
+├── .github/workflows/    # CI e CD
+├── ansible/              # Playbook e modelo de inventário
+├── docs/                 # Referência técnica e procedimentos
+├── public/               # Arquivos públicos e créditos dos ícones
+├── src/                  # Aplicação React, estilos e recursos visuais
+├── terraform/            # Recursos AWS, backend, variáveis e outputs
+├── Dockerfile            # Build Vite e imagem de execução Nginx
+├── docker-compose.yaml   # Execução local do serviço web
+└── nginx.conf            # Servidor estático na porta 8080
 ```
 
-O Compose executa uma imagem pronta; ele não faz o build. `APP_IMAGE` seleciona a
-imagem (padrão `cloud-devops:local`) e `HTTP_PORT` define a porta do host (padrão `80`).
-Essas variáveis podem ser definidas no ambiente ou em um arquivo `.env` local:
+## Documentação técnica
 
-```dotenv
-APP_IMAGE=cloud-devops:local
-HTTP_PORT=8080
-```
-
-Nesse exemplo, acesse `http://localhost:8080/`. Para usar futuramente uma imagem de
-registro público, basta mudar `APP_IMAGE`, executar `docker compose pull` e depois
-`docker compose up -d`. Nenhuma alteração no Compose é necessária.
-
-O estágio `build` usa Node 24 LTS, compatível com o requisito do Vite instalado
-(`^20.19.0 || >=22.12.0`). Os manifestos são copiados antes do código para reutilizar
-o cache de `npm ci`; o lockfile fixa as dependências e `npm run build` gera `dist/`.
-O estágio `production` usa a imagem oficial `nginx:stable-alpine` e recebe somente
-o resultado compilado e a configuração do servidor, sem Node.js ou fontes React.
-As tags das imagens-base recebem atualizações; builds bit a bit idênticos exigiriam
-fixar também seus digests.
-
-O Nginx roda como usuário `nginx`, com PID e arquivos temporários em `/tmp` e logs
-na saída do container. O Compose remove as capabilities e impede novos privilégios.
-O sysctl `net.ipv4.ip_unprivileged_port_start=0` permite escutar na porta 80 dentro
-do namespace do container sem executar como root. Isso não altera o sysctl do host.
-Em Docker rootless, publicar a porta 80 do host pode exigir configuração adicional
-do host; nesse caso, use `HTTP_PORT=8080`.
-
-A configuração inclui os tipos MIME de CSS, JavaScript e imagens. Como a navegação
-atual usa âncoras (`#projeto`, `#arquitetura`), não há fallback de rotas para
-`index.html`: arquivos inexistentes retornam 404. Se forem adicionadas rotas React
-por caminho no futuro, essa decisão deverá ser revisada.
-
-O `.dockerignore` permite somente os arquivos necessários ao build, excluindo por
-padrão dependências locais, builds anteriores, Git, IDEs, documentação e caches.
-Arquivos de ambiente, chaves, logs e temporários também são excluídos dentro de
-`src/` e `public/`. Se o build passar a depender de novos arquivos, inclua-os
-explicitamente no Dockerfile e no `.dockerignore`.
-
-## HTTPS no servidor (PR #8)
-
-O único playbook, `ansible/playbook.yml`, gerencia o Compose de produção em
-`/opt/cloud-devops-aws/compose.yml`. O `docker-compose.yaml` da raiz continua sendo
-a opção de execução local descrita acima.
-
-O Caddy recebe HTTP/HTTPS em TCP 80/443 e encaminha para `web:8080` na rede do
-Compose. O domínio padrão é **`teste-aws.devops.erikgdl.xyz`**. O domínio principal
-**`devops.erikgdl.xyz` deve permanecer no servidor antigo** durante a validação.
-Não há gerenciamento de DNS neste PR. O Terraform apenas acrescenta a entrada
-pública TCP 443, preservando HTTP, SSH restrito e saída existentes.
-
-Os volumes `caddy_data` (`/data`) e `caddy_config` (`/config`) persistem certificados
-e estado. `kuma_data` e o serviço `uptime-kuma` mantêm os nomes existentes. Os três
-serviços compartilham a rede padrão: o monitor **`http://web:8080`** continua válido.
-O painel Kuma fica exclusivamente em `127.0.0.1:3001`; não há proxy público para ele.
-Não use `docker compose down -v`: isso apagaria os dados desses volumes.
-
-O backend publica somente `127.0.0.1:8080`. Ansible e CD verificam essa porta para
-chegar à aplicação, sem aceitar como sucesso apenas o redirecionamento HTTP do
-Caddy. A validação externa de DNS, certificado e proxy é uma etapa separada abaixo.
-O CD mantém imagem com SHA, GHCR, OIDC e SSM. O `.env` continua contendo somente
-`APP_IMAGE`; o domínio é configurado no Caddyfile pelo Ansible e não é perdido
-quando o CD reescreve o `.env`.
-
-`app_domain` pode ser sobrescrito com `-e app_domain=outro.dominio`. O Ansible usa
-somente Ubuntu, Docker e Compose, sem SDK ou dependências de provedor: funciona
-com hosts compatíveis em AWS, Azure, GCP e VirtualBox usando o inventário existente.
-Em uma VM isolada sem DNS público, `-e app_domain=http://localhost` permite testar
-o proxy por HTTP dentro da VM. Para HTTPS público, os registros A/AAAA precisam
-apontar para esse host e TCP 80/443 precisam estar acessíveis, inclusive no firewall
-do sistema e no NAT, quando houver. Não publique AAAA sem IPv6 configurado.
-Consulte os [requisitos de HTTPS automático do Caddy](https://caddyserver.com/docs/automatic-https).
-
-O diretório `caddy/` é montado em modo de leitura. Ao mudar o Caddyfile, um handler
-executa `caddy reload` após iniciar os serviços, aplicando também mudanças de
-domínio sem recriar os volumes. Reexecutar o playbook preserva o `.env` existente
-(`force: false`), portanto preserva a versão SHA já implantada.
-
-### Validação local sem aplicar infraestrutura
-
-Os comandos a seguir usam Bash (Linux/WSL), Terraform inicializado e Ansible.
-Execute na raiz. `terraform init -backend=false` só é necessário se os providers
-ainda não estiverem instalados; não executa plano nem aplicação.
-
-```sh
-terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
-terraform -chdir=terraform fmt -check -diff
-terraform -chdir=terraform validate
-ansible-playbook -i ansible/inventory.ini.example ansible/playbook.yml --syntax-check
-docker compose config --quiet
-```
-
-Para validar exatamente o Compose e o Caddyfile embutidos no playbook, gere cópias
-temporárias. PyYAML e Jinja2 já fazem parte do ambiente do Ansible. Este comando
-não executa o playbook nem inicia os serviços; `caddy validate` roda em container
-descartável sem rede e sem solicitar certificados:
-
-```sh
-export VALIDATION_DIR=$(mktemp -d)
-python3 - <<'PY'
-import os
-from pathlib import Path
-import yaml
-from jinja2 import Template
-
-play = yaml.safe_load(Path('ansible/playbook.yml').read_text())[0]
-dest = Path(os.environ['VALIDATION_DIR'])
-(dest / 'caddy').mkdir()
-for task in play['tasks']:
-    copy = task.get('ansible.builtin.copy', {})
-    for suffix in ('/compose.yml', '/caddy/Caddyfile'):
-        if copy.get('dest', '').endswith(suffix):
-            (dest / suffix.lstrip('/')).write_text(
-                Template(copy['content']).render(**play['vars']) + '\n')
-PY
-APP_IMAGE=cloud-devops:local docker compose -f "$VALIDATION_DIR/compose.yml" config --quiet
-docker run --rm --network none \
-  --mount "type=bind,src=$VALIDATION_DIR/caddy,dst=/etc/caddy,readonly" \
-  caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-```
-
-### Aplicação manual, após revisão
-
-Execute a migração antes de integrar este PR em `master`: o CD atualizado já
-espera o backend no loopback 8080 e as imagens auxiliares instaladas pelo Ansible.
-
-1. Na máquina com as credenciais Terraform existentes, gere e revise um plano:
-
-   ```sh
-   terraform -chdir=terraform init -input=false -lockfile=readonly
-   terraform -chdir=terraform plan -out=pr8.tfplan
-   terraform -chdir=terraform show pr8.tfplan
-   ```
-
-   O esperado é apenas uma nova regra TCP 443. Se houver outras alterações,
-   especialmente substituição da EC2 por atualização da AMI, pare e investigue.
-   Somente após aprovar esse plano, aplique o arquivo revisado:
-
-   ```sh
-   terraform -chdir=terraform apply pr8.tfplan
-   terraform -chdir=terraform output -raw ec2_public_ip
-   ```
-
-2. Em uma etapa manual autorizada, configure **somente** o registro A de
-   `teste-aws.devops.erikgdl.xyz` para esse IP. Preserve o registro do domínio
-   principal. Confirme a propagação e eventuais registros AAAA antes de continuar:
-
-   ```sh
-   dig +short A teste-aws.devops.erikgdl.xyz
-   dig +short AAAA teste-aws.devops.erikgdl.xyz
-   dig +short A devops.erikgdl.xyz
-   ```
-
-3. Preencha o inventário já previsto pelo projeto, sem criar outro modelo:
-
-   ```sh
-   cp -n ansible/inventory.ini.example ansible/inventory.ini
-   ${EDITOR:-vi} ansible/inventory.ini
-   ```
-
-   Use o IP de destino e `ansible_user=ubuntu`. Informe um SHA completo já
-   publicado no GHCR para o primeiro provisionamento. Em um servidor já
-   provisionado, o `.env` atual será preservado; confira que ele já usa um SHA.
-
-   ```sh
-   read -r -p 'SHA da imagem já publicada (40 caracteres): ' IMAGE_SHA
-   [[ "$IMAGE_SHA" =~ ^[a-f0-9]{40}$ ]] && \
-     ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
-       --private-key ~/.ssh/cloud-devops-aws-nova \
-       -e "app_image=ghcr.io/erikgdl/cloud-devops-aws:$IMAGE_SHA" \
-       -e app_domain=teste-aws.devops.erikgdl.xyz
-   ```
-
-4. No servidor, valide backend, configuração e conectividade interna:
-
-   ```sh
-   cd /opt/cloud-devops-aws
-   sudo docker compose config --quiet
-   sudo docker compose ps
-   curl -fsS http://127.0.0.1:8080/ > /dev/null
-   sudo docker compose exec -T caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-   sudo docker compose exec -T caddy wget -q -O /dev/null http://web:8080/
-   sudo docker compose logs --tail=100 caddy
-   ```
-
-   De fora do servidor, confira o redirecionamento e o HTTPS com certificado
-   válido, sem `-k`. O primeiro comando deve mostrar 308 para o domínio de teste;
-   o segundo deve terminar com código HTTP 200 e retornar o HTML da aplicação:
-
-   ```sh
-   curl -sS -o /dev/null -D - http://teste-aws.devops.erikgdl.xyz/
-   curl -fSs --retry 10 --retry-delay 3 -w '\nHTTP %{http_code}\n' https://teste-aws.devops.erikgdl.xyz/
-   ```
-
-   Para conferir no Kuma o monitor existente `http://web:8080`, abra um túnel na
-   sua máquina e acesse `http://localhost:3001`:
-
-   ```sh
-   ssh -N -L 3001:127.0.0.1:3001 -i ~/.ssh/cloud-devops-aws-nova ubuntu@IP_NOVO
-   ```
-
-O domínio principal só deve migrar em uma etapa posterior, após validar o domínio
-de teste. Este procedimento não o altera.
-
-## Onde editar
-
-| Alteração | Arquivo ou pasta |
+| Documento | Conteúdo |
 | --- | --- |
-| Ordem dos capítulos | `src/pages/home/HomePage.jsx` |
-| Conteúdo de um capítulo | Componente correspondente em `src/pages/home/sections/` |
-| Capa, desenho do servidor e faixa de tecnologias | `src/pages/home/sections/opening/` |
-| Diagrama de arquitetura | `sections/Architecture.jsx` e `sections/Architecture.css`, dentro da home |
-| Diagrama de portabilidade | `sections/Portability.jsx` e `sections/portability.css`, dentro da home |
-| Estilos comuns dos capítulos e entradas na rolagem | `src/pages/home/home.css` |
-| Cabeçalho, menu, marca e rodapé | `src/components/layout/` |
-| Acesso à apresentação | `src/components/PresentationButton.jsx`, usado pelo menu, pela capa e pelo encerramento |
-| Comportamento das animações | `src/hooks/` |
-| Paleta, tipografia e espaçamentos | `src/styles/tokens.css` |
-| Foco, links e estilos compartilhados | `src/styles/global.css` |
-| Logos das ferramentas | `src/assets/architecture/` |
-| Favicon e créditos publicados | `public/` |
+| [Índice](docs/README.md) | Percursos de leitura e convenções |
+| [Arquitetura](docs/arquitetura.md) | Componentes, fluxos e limites da solução |
+| [Infraestrutura](docs/infraestrutura.md) | Terraform, recursos AWS e dependências externas |
+| [Automação](docs/automacao.md) | Inventário, variáveis e tarefas Ansible |
+| [Desenvolvimento](docs/desenvolvimento.md) | Frontend, Docker e validações locais |
+| [Implantação](docs/implantacao.md) | Reprodução na AWS e em Ubuntu compatível |
+| [CI/CD](docs/ci-cd.md) | Workflows, imagens, OIDC e SSM |
+| [Operação e segurança](docs/operacao-e-seguranca.md) | HTTPS, monitoramento, diagnóstico e cuidados operacionais |
+| [Direção visual](docs/design-direction.md) | Organização e decisões visuais da aplicação |
 
-`src/main.jsx` inicia o React. `src/App.jsx` monta o cabeçalho, a home e o rodapé e cuida da navegação por âncoras. Os três acessos à apresentação usam um botão nativo desabilitado. Quando os slides estiverem disponíveis, o componente compartilhado é o ponto para conectar a rota.
+## Contexto acadêmico e créditos
+
+A interface identifica o trabalho como uma defesa acadêmica N2 de DevOps e Computação em Nuvem.
+O botão de apresentação permanece desabilitado; não há slides integrados ao projeto.
+
+Os créditos dos ícones estão em [public/creditos-icones.txt](public/creditos-icones.txt).
+As licenças de recursos visuais ficam em [src/assets/architecture/](src/assets/architecture/).
+
+## Contribuição e licença
+
+Antes de propor alterações, consulte o [guia de desenvolvimento](docs/desenvolvimento.md) e execute as verificações pertinentes à área modificada.
+Mudanças operacionais devem atualizar a documentação correspondente.
+
+O repositório não contém uma licença geral na raiz.
+As licenças dos recursos visuais têm seus próprios escopos e não definem a licença de todo o código.
