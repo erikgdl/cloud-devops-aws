@@ -6,6 +6,8 @@
   vars:
     app_dir: /opt/cloud-devops-aws
     app_image: ghcr.io/erikgdl/cloud-devops-aws:latest
+    app_domain: devops.erikgdl.xyz
+    monitor_domain: monitor.erikgdl.xyz
 
   tasks:
     - name: Instalar Docker e Docker Compose
@@ -23,11 +25,28 @@
         state: started
         enabled: true
 
-    - name: Criar diretorio da aplicacao
+    - name: Criar diretorios da aplicacao e do Caddy
       ansible.builtin.file:
-        path: "{{ app_dir }}"
+        path: "{{ item }}"
         state: directory
         mode: "0755"
+      loop:
+        - "{{ app_dir }}"
+        - "{{ app_dir }}/caddy"
+
+    - name: Configurar proxy reverso e HTTPS automatico
+      ansible.builtin.copy:
+        dest: "{{ app_dir }}/caddy/Caddyfile"
+        mode: "0644"
+        content: |
+          {{ app_domain }} {
+              reverse_proxy web:8080
+          }
+
+          {{ monitor_domain }} {
+              reverse_proxy uptime-kuma:3001
+          }
+      notify: Recarregar Caddy
 
     - name: Configurar Docker Compose
       ansible.builtin.copy:
@@ -37,8 +56,22 @@
           services:
             web:
               image: "${APP_IMAGE}"
+              # Health checks locais; o acesso publico passa pelo Caddy.
               ports:
-                - "80:8080"
+                - "127.0.0.1:8080:8080"
+              restart: unless-stopped
+
+            caddy:
+              image: caddy:2-alpine
+              ports:
+                - "80:80"
+                - "443:443"
+              volumes:
+                - ./caddy:/etc/caddy:ro
+                - caddy_data:/data
+                - caddy_config:/config
+              depends_on:
+                - web
               restart: unless-stopped
 
             uptime-kuma:
@@ -51,6 +84,8 @@
 
           volumes:
             kuma_data:
+            caddy_data:
+            caddy_config:
 
     - name: Criar arquivo inicial da versao
       ansible.builtin.copy:
@@ -70,11 +105,19 @@
         'Recreated' in compose_result.stderr or
         'Started' in compose_result.stderr
 
-    - name: Verificar resposta HTTP
+    - name: Verificar resposta HTTP da aplicacao sem redirecionamento do proxy
       ansible.builtin.uri:
-        url: http://127.0.0.1/
+        url: http://127.0.0.1:8080/
+        follow_redirects: none
         status_code: 200
       register: http_result
       retries: 10
       delay: 3
       until: http_result.status == 200
+
+  handlers:
+    - name: Recarregar Caddy
+      ansible.builtin.command:
+        cmd: docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+        chdir: "{{ app_dir }}"
+      changed_when: true
