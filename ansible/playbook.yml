@@ -41,6 +41,17 @@
                 - "80:8080"
               restart: unless-stopped
 
+            uptime-kuma:
+              image: louislam/uptime-kuma:2
+              ports:
+                - "127.0.0.1:3001:3001"
+              volumes:
+                - kuma_data:/app/data
+              restart: unless-stopped
+
+          volumes:
+            kuma_data:
+
     - name: Criar arquivo inicial da versao
       ansible.builtin.copy:
         dest: "{{ app_dir }}/.env"
