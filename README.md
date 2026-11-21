@@ -71,6 +71,171 @@ Arquivos de ambiente, chaves, logs e temporários também são excluídos dentro
 `src/` e `public/`. Se o build passar a depender de novos arquivos, inclua-os
 explicitamente no Dockerfile e no `.dockerignore`.
 
+## HTTPS no servidor (PR #8)
+
+O único playbook, `ansible/playbook.yml`, gerencia o Compose de produção em
+`/opt/cloud-devops-aws/compose.yml`. O `docker-compose.yaml` da raiz continua sendo
+a opção de execução local descrita acima.
+
+O Caddy recebe HTTP/HTTPS em TCP 80/443 e encaminha para `web:8080` na rede do
+Compose. O domínio padrão é **`teste-aws.devops.erikgdl.xyz`**. O domínio principal
+**`devops.erikgdl.xyz` deve permanecer no servidor antigo** durante a validação.
+Não há gerenciamento de DNS neste PR. O Terraform apenas acrescenta a entrada
+pública TCP 443, preservando HTTP, SSH restrito e saída existentes.
+
+Os volumes `caddy_data` (`/data`) e `caddy_config` (`/config`) persistem certificados
+e estado. `kuma_data` e o serviço `uptime-kuma` mantêm os nomes existentes. Os três
+serviços compartilham a rede padrão: o monitor **`http://web:8080`** continua válido.
+O painel Kuma fica exclusivamente em `127.0.0.1:3001`; não há proxy público para ele.
+Não use `docker compose down -v`: isso apagaria os dados desses volumes.
+
+O backend publica somente `127.0.0.1:8080`. Ansible e CD verificam essa porta para
+chegar à aplicação, sem aceitar como sucesso apenas o redirecionamento HTTP do
+Caddy. A validação externa de DNS, certificado e proxy é uma etapa separada abaixo.
+O CD mantém imagem com SHA, GHCR, OIDC e SSM. O `.env` continua contendo somente
+`APP_IMAGE`; o domínio é configurado no Caddyfile pelo Ansible e não é perdido
+quando o CD reescreve o `.env`.
+
+`app_domain` pode ser sobrescrito com `-e app_domain=outro.dominio`. O Ansible usa
+somente Ubuntu, Docker e Compose, sem SDK ou dependências de provedor: funciona
+com hosts compatíveis em AWS, Azure, GCP e VirtualBox usando o inventário existente.
+Em uma VM isolada sem DNS público, `-e app_domain=http://localhost` permite testar
+o proxy por HTTP dentro da VM. Para HTTPS público, os registros A/AAAA precisam
+apontar para esse host e TCP 80/443 precisam estar acessíveis, inclusive no firewall
+do sistema e no NAT, quando houver. Não publique AAAA sem IPv6 configurado.
+Consulte os [requisitos de HTTPS automático do Caddy](https://caddyserver.com/docs/automatic-https).
+
+O diretório `caddy/` é montado em modo de leitura. Ao mudar o Caddyfile, um handler
+executa `caddy reload` após iniciar os serviços, aplicando também mudanças de
+domínio sem recriar os volumes. Reexecutar o playbook preserva o `.env` existente
+(`force: false`), portanto preserva a versão SHA já implantada.
+
+### Validação local sem aplicar infraestrutura
+
+Os comandos a seguir usam Bash (Linux/WSL), Terraform inicializado e Ansible.
+Execute na raiz. `terraform init -backend=false` só é necessário se os providers
+ainda não estiverem instalados; não executa plano nem aplicação.
+
+```sh
+terraform -chdir=terraform init -backend=false -input=false -lockfile=readonly
+terraform -chdir=terraform fmt -check -diff
+terraform -chdir=terraform validate
+ansible-playbook -i ansible/inventory.ini.example ansible/playbook.yml --syntax-check
+docker compose config --quiet
+```
+
+Para validar exatamente o Compose e o Caddyfile embutidos no playbook, gere cópias
+temporárias. PyYAML e Jinja2 já fazem parte do ambiente do Ansible. Este comando
+não executa o playbook nem inicia os serviços; `caddy validate` roda em container
+descartável sem rede e sem solicitar certificados:
+
+```sh
+export VALIDATION_DIR=$(mktemp -d)
+python3 - <<'PY'
+import os
+from pathlib import Path
+import yaml
+from jinja2 import Template
+
+play = yaml.safe_load(Path('ansible/playbook.yml').read_text())[0]
+dest = Path(os.environ['VALIDATION_DIR'])
+(dest / 'caddy').mkdir()
+for task in play['tasks']:
+    copy = task.get('ansible.builtin.copy', {})
+    for suffix in ('/compose.yml', '/caddy/Caddyfile'):
+        if copy.get('dest', '').endswith(suffix):
+            (dest / suffix.lstrip('/')).write_text(
+                Template(copy['content']).render(**play['vars']) + '\n')
+PY
+APP_IMAGE=cloud-devops:local docker compose -f "$VALIDATION_DIR/compose.yml" config --quiet
+docker run --rm --network none \
+  --mount "type=bind,src=$VALIDATION_DIR/caddy,dst=/etc/caddy,readonly" \
+  caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+```
+
+### Aplicação manual, após revisão
+
+Execute a migração antes de integrar este PR em `master`: o CD atualizado já
+espera o backend no loopback 8080 e as imagens auxiliares instaladas pelo Ansible.
+
+1. Na máquina com as credenciais Terraform existentes, gere e revise um plano:
+
+   ```sh
+   terraform -chdir=terraform init -input=false -lockfile=readonly
+   terraform -chdir=terraform plan -out=pr8.tfplan
+   terraform -chdir=terraform show pr8.tfplan
+   ```
+
+   O esperado é apenas uma nova regra TCP 443. Se houver outras alterações,
+   especialmente substituição da EC2 por atualização da AMI, pare e investigue.
+   Somente após aprovar esse plano, aplique o arquivo revisado:
+
+   ```sh
+   terraform -chdir=terraform apply pr8.tfplan
+   terraform -chdir=terraform output -raw ec2_public_ip
+   ```
+
+2. Em uma etapa manual autorizada, configure **somente** o registro A de
+   `teste-aws.devops.erikgdl.xyz` para esse IP. Preserve o registro do domínio
+   principal. Confirme a propagação e eventuais registros AAAA antes de continuar:
+
+   ```sh
+   dig +short A teste-aws.devops.erikgdl.xyz
+   dig +short AAAA teste-aws.devops.erikgdl.xyz
+   dig +short A devops.erikgdl.xyz
+   ```
+
+3. Preencha o inventário já previsto pelo projeto, sem criar outro modelo:
+
+   ```sh
+   cp -n ansible/inventory.ini.example ansible/inventory.ini
+   ${EDITOR:-vi} ansible/inventory.ini
+   ```
+
+   Use o IP de destino e `ansible_user=ubuntu`. Informe um SHA completo já
+   publicado no GHCR para o primeiro provisionamento. Em um servidor já
+   provisionado, o `.env` atual será preservado; confira que ele já usa um SHA.
+
+   ```sh
+   read -r -p 'SHA da imagem já publicada (40 caracteres): ' IMAGE_SHA
+   [[ "$IMAGE_SHA" =~ ^[a-f0-9]{40}$ ]] && \
+     ansible-playbook -i ansible/inventory.ini ansible/playbook.yml \
+       --private-key ~/.ssh/cloud-devops-aws-nova \
+       -e "app_image=ghcr.io/erikgdl/cloud-devops-aws:$IMAGE_SHA" \
+       -e app_domain=teste-aws.devops.erikgdl.xyz
+   ```
+
+4. No servidor, valide backend, configuração e conectividade interna:
+
+   ```sh
+   cd /opt/cloud-devops-aws
+   sudo docker compose config --quiet
+   sudo docker compose ps
+   curl -fsS http://127.0.0.1:8080/ > /dev/null
+   sudo docker compose exec -T caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+   sudo docker compose exec -T caddy wget -q -O /dev/null http://web:8080/
+   sudo docker compose logs --tail=100 caddy
+   ```
+
+   De fora do servidor, confira o redirecionamento e o HTTPS com certificado
+   válido, sem `-k`. O primeiro comando deve mostrar 308 para o domínio de teste;
+   o segundo deve terminar com código HTTP 200 e retornar o HTML da aplicação:
+
+   ```sh
+   curl -sS -o /dev/null -D - http://teste-aws.devops.erikgdl.xyz/
+   curl -fSs --retry 10 --retry-delay 3 -w '\nHTTP %{http_code}\n' https://teste-aws.devops.erikgdl.xyz/
+   ```
+
+   Para conferir no Kuma o monitor existente `http://web:8080`, abra um túnel na
+   sua máquina e acesse `http://localhost:3001`:
+
+   ```sh
+   ssh -N -L 3001:127.0.0.1:3001 -i ~/.ssh/cloud-devops-aws-nova ubuntu@IP_NOVO
+   ```
+
+O domínio principal só deve migrar em uma etapa posterior, após validar o domínio
+de teste. Este procedimento não o altera.
+
 ## Onde editar
 
 | Alteração | Arquivo ou pasta |
