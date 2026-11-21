@@ -19,7 +19,7 @@ export default function Opening() {
               de um deploy.
             </h1>
             <p className="lead">
-              Como uma revisão de código se torna uma aplicação HTTP em um servidor Ubuntu.
+              Como uma revisão de código se torna uma aplicação HTTPS em um servidor Ubuntu.
             </p>
             <div className="cover-actions">
               <a className="next-link" href="#projeto">

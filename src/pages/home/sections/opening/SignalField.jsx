@@ -70,8 +70,8 @@ export default function SignalField() {
     >
       <svg viewBox="0 0 500 330" role="img" aria-labelledby="trace-title">
         <title id="trace-title">
-          O Docker no host Ubuntu baixa a imagem do ECR Public. O contêiner disponibiliza a
-          aplicação por HTTP.
+          O Docker no host Ubuntu baixa a imagem do GHCR. O Caddy recebe HTTPS e encaminha
+          por HTTP ao Nginx da aplicação.
         </title>
         <defs>
           <pattern id="plane" width="48" height="25" patternUnits="userSpaceOnUse">
@@ -102,13 +102,13 @@ export default function SignalField() {
         </g>
         <g className="plate-label" fill="var(--paper)">
           <text x="22" y="39">
-            ECR Public
+            GHCR
           </text>
           <text x="352" y="62">
             Host Ubuntu
           </text>
           <text x="157" y="301">
-            Aplicação HTTP
+            Aplicação HTTPS
           </text>
         </g>
       </svg>

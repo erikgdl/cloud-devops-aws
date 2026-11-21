@@ -3,7 +3,7 @@ import useVisibleMotion from '../../../../hooks/useVisibleMotion'
 const sequence = [
   'React + Vite',
   'GitHub Actions',
-  'Amazon ECR Public',
+  'GitHub Container Registry',
   'Terraform',
   'Amazon EC2',
   'Ansible',

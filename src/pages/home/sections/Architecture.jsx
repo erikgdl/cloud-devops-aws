@@ -18,12 +18,12 @@ const imagePath = [
   {
     name: 'GitHub Actions',
     logo: actions,
-    detail: 'O workflow constrói a imagem da aplicação e a publica no registro.',
+    detail: 'O CI valida o código. O CD publica a imagem no GHCR e atualiza a EC2 por SSM.',
   },
   {
-    name: 'Amazon ECR Public',
-    logo: aws,
-    detail: 'A imagem recebe um endereço público que o Docker usa para baixá-la.',
+    name: 'GitHub Container Registry',
+    logo: github,
+    detail: 'O registro do GitHub armazena a imagem com tags latest e SHA do commit.',
   },
 ]
 
@@ -31,7 +31,7 @@ const hostPath = [
   {
     name: 'Terraform',
     logo: terraform,
-    detail: 'A configuração em código descreve a rede e a instância que a AWS provisiona.',
+    detail: 'Descreve EC2, Elastic IP, Security Group e permissões IAM, reutilizando a VPC padrão.',
   },
   {
     name: 'Amazon EC2',
@@ -41,7 +41,7 @@ const hostPath = [
   {
     name: 'Ansible',
     logo: ansible,
-    detail: 'O playbook prepara o Ubuntu, instala o Docker e o suporte ao Compose.',
+    detail: 'O playbook instala Docker e Compose e configura aplicação, Caddy e Uptime Kuma.',
   },
 ]
 
@@ -86,13 +86,13 @@ export default function Architecture() {
             <small>Execução no Ubuntu</small>
             <h3>Docker Compose</h3>
             <p>
-              O Compose aponta para a imagem do ECR Public e define a porta do contêiner. No host
-              configurado pelo Ansible, o Docker baixa a imagem e inicia a aplicação.
+              No servidor, o Compose executa web, Caddy e Uptime Kuma. A imagem vem do GHCR;
+              o Caddy recebe HTTPS e encaminha por HTTP ao Nginx na porta 8080.
             </p>
           </div>
           <span className="http-output">
             <i aria-hidden="true" />
-            Aplicação HTTP
+            Aplicação HTTPS
           </span>
         </div>
       </div>
