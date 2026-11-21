@@ -15,7 +15,7 @@ export default function Portability() {
           <h2 id="port-heading">
             Um playbook para
             <br />
-            dois ambientes Ubuntu.
+            outro host Ubuntu.
           </h2>
         </div>
         <div className="port-route">
@@ -33,18 +33,18 @@ export default function Portability() {
                 Ubuntu na EC2
               </dt>
               <dd>
-                <ToolMark logo={terraform} size={18} /> O Terraform define a instância. O inventário
-                usa o endereço do servidor na AWS.
+                <ToolMark logo={terraform} size={18} /> O Terraform cria a EC2 na VPC padrão existente.
+                O IP do servidor é preenchido manualmente no inventário.
               </dd>
             </div>
             <div data-reveal>
               <dt>
                 <ToolMark logo={ubuntu} />
-                Máquina física
+                Ubuntu compatível
               </dt>
               <dd>
-                O inventário usa o endereço local do computador com Ubuntu. O playbook aplica as
-                mesmas tarefas.
+                O playbook pode configurar outro Ubuntu com APT, systemd, Python, SSH e sudo.
+                A compatibilidade precisa ser verificada.
               </dd>
             </div>
           </dl>
@@ -54,8 +54,8 @@ export default function Portability() {
           <div>
             <h3>A mesma imagem Docker</h3>
             <p>
-              Nos dois destinos, o Docker baixa a imagem do Amazon ECR Public sem credenciais AWS. O
-              Compose define como executar a aplicação.
+              A reutilização exige Ubuntu e arquitetura compatíveis, além de acesso à imagem no
+              GHCR. O Terraform e o CD por SSM continuam específicos da AWS.
             </p>
           </div>
         </div>

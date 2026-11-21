@@ -2,7 +2,7 @@ const decisions = [
   {
     subject: 'Recursos',
     artifact: 'Definição Terraform',
-    description: 'A rede e a instância EC2 ficam descritas como recursos da infraestrutura.',
+    description: 'A EC2, o Elastic IP, as regras de acesso e as permissões IAM são descritos em código.',
   },
   {
     subject: 'Ambiente',
@@ -14,7 +14,7 @@ const decisions = [
     subject: 'Aplicação',
     artifact: 'Imagem e Compose',
     description:
-      'O GitHub Actions constrói a imagem para publicação no ECR Public. A definição Compose descreve como executá-la no Ubuntu.',
+      'Após o CI aprovado, o CD publica a imagem no GHCR e atualiza a EC2 via SSM. O Compose define a execução dos serviços.',
   },
 ]
 

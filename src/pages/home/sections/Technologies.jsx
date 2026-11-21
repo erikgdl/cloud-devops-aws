@@ -1,28 +1,28 @@
 const technologies = [
   {
     role: 'Aplicação web',
-    name: 'React e Vite',
-    note: 'Os componentes React estruturam a interface. O Vite transforma o código em arquivos estáticos para distribuição.',
+    name: 'React, Vite e Nginx',
+    note: 'React estrutura a interface, Vite gera os arquivos estáticos e Nginx os serve na porta 8080.',
   },
   {
     role: 'Infraestrutura',
-    name: 'Terraform e EC2',
-    note: 'O Terraform descreve os recursos na AWS. A EC2 fornece a máquina virtual com Ubuntu.',
+    name: 'Terraform e AWS',
+    note: 'O Terraform define EC2 Ubuntu, Elastic IP, Security Group e permissões IAM, utilizando a VPC padrão existente.',
   },
   {
     role: 'Automação',
     name: 'Ansible',
-    note: 'O inventário seleciona as máquinas. O playbook registra as tarefas de instalação e configuração comuns a elas.',
+    note: 'O inventário identifica o host. O playbook instala Docker e Compose, configura o Caddy para HTTPS e inicia a aplicação e o Uptime Kuma.',
   },
   {
     role: 'Contêineres',
-    name: 'Docker, Compose e ECR Public',
-    note: 'O registro armazena a imagem, o Compose define a execução e o Docker inicia o contêiner.',
+    name: 'Docker, Compose e GHCR',
+    note: 'O GHCR armazena as imagens versionadas. O Compose define portas, volumes e execução dos contêineres.',
   },
   {
     role: 'Integração e entrega',
-    name: 'GitHub e GitHub Actions',
-    note: 'O repositório reúne o código. Ao workflow cabe transformar uma revisão da aplicação em uma imagem publicável.',
+    name: 'GitHub Actions e SSM',
+    note: 'O CI valida lint e builds. O CD publica no GHCR e atualiza a EC2 via SSM, com credenciais AWS temporárias por OIDC.',
   },
 ]
 

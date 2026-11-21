@@ -11,8 +11,8 @@ export default function ProjectDefense() {
           <p className="caption">Cloud DevOps / Defesa acadêmica</p>
           <h2>A defesa do projeto</h2>
           <p>
-            A defesa reúne a questão do trabalho, as decisões de arquitetura e a comparação entre os
-            ambientes de execução.
+            A defesa reúne a questão do trabalho, as decisões de arquitetura e o fluxo de entrega,
+            com os limites de reprodução do ambiente.
           </p>
           <PresentationButton arrow="↗">Abrir apresentação</PresentationButton>
         </div>
