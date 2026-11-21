@@ -10,6 +10,10 @@ Essa separação permite identificar qual artefato controla cada parte do ambien
 [src/App.jsx](../src/App.jsx) reúne cabeçalho, página e rodapé, além de controlar a navegação por fragmentos de URL.
 [HomePage.jsx](../src/pages/home/HomePage.jsx) organiza os capítulos sobre problema, solução, arquitetura, tecnologias, portabilidade e defesa.
 
+O App também seleciona a apresentação pelo fragmento `#/apresentacao/1` e carrega [Presentation.jsx](../src/slides/Presentation.jsx) sob demanda.
+Cada um dos 18 slides possui um componente separado em [src/slides/](../src/slides/), ordenado por [slides.js](../src/slides/slides.js).
+A navegação por hash funciona com o servidor estático atual, sem fallback de rotas no Nginx.
+
 O Vite compila a aplicação em arquivos estáticos em `dist/`.
 Não há chamadas a uma API própria nem um serviço de backend no Compose.
 O Nginx entrega HTML, CSS, JavaScript e recursos públicos na porta `8080`.
@@ -119,8 +123,8 @@ Alguns textos e desenhos de [src/pages/home/sections/](../src/pages/home/section
 Os workflows atuais utilizam GHCR, e o inventário de exemplo apresenta um único host.
 O repositório não contém evidências de validação dos dois destinos.
 
-O botão de apresentação está desabilitado em [PresentationButton.jsx](../src/components/PresentationButton.jsx).
-Não há navegação para slides implementada.
+[PresentationButton.jsx](../src/components/PresentationButton.jsx) conecta os três acessos da home à apresentação de 18 slides.
+O conteúdo segue [APRESENTACAO-N2.md](../APRESENTACAO-N2.md), sem incorporar as falas dos integrantes à tela.
 
 ## Documentos relacionados
 

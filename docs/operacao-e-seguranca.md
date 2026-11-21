@@ -239,7 +239,7 @@ Estas observações descrevem o código atual; não são correções já aplicad
 | Entregas concorrentes | Sem `concurrency`, rollback automático ou aprovação por ambiente |
 | Persistência local | Volumes no mesmo host, sem backup/recuperação automatizados |
 | Arquivos sensíveis locais | `.gitignore` sem exclusões genéricas de ambiente, chaves e planos |
-| Licença e apresentação | Sem licença geral na raiz; botão de slides desabilitado |
+| Licença | Sem licença geral na raiz |
 
 ## Documentos relacionados
 

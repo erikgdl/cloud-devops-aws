@@ -213,7 +213,9 @@ Essa verificação de sintaxe não comprova que o ambiente público funcionará.
 | Diagrama visual da portabilidade | [Portability.jsx](../src/pages/home/sections/Portability.jsx) e [portability.css](../src/pages/home/sections/portability.css) |
 | Estilos comuns dos capítulos | [home.css](../src/pages/home/home.css) |
 | Cabeçalho e rodapé | [layout/](../src/components/layout/) |
-| Acesso à apresentação, atualmente desabilitado | [PresentationButton.jsx](../src/components/PresentationButton.jsx) |
+| Acessos à apresentação | [PresentationButton.jsx](../src/components/PresentationButton.jsx) |
+| Palco, navegação e controles da N2 | [Presentation.jsx](../src/slides/Presentation.jsx) |
+| Conteúdo e ordem dos 18 slides | [slides/](../src/slides/) e [slides.js](../src/slides/slides.js) |
 | Animações por visibilidade e rolagem | [hooks/](../src/hooks/) |
 | Cores, fontes e espaçamento | [tokens.css](../src/styles/tokens.css) |
 | Foco, links e estilos globais | [global.css](../src/styles/global.css) |
@@ -223,6 +225,7 @@ Essa verificação de sintaxe não comprova que o ambiente público funcionará.
 ## Documentos relacionados
 
 - [Direção visual](design-direction.md): intenção visual e acessibilidade observável.
+- [Apresentação N2](apresentacao.md): navegação e manutenção dos slides.
 - [Implantação](implantacao.md): execução no servidor.
 - [CI/CD](ci-cd.md): verificações automatizadas e publicação.
 - [Operação e segurança](operacao-e-seguranca.md): acesso público e diagnóstico.

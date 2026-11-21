@@ -156,7 +156,8 @@ Consulte [Operação e segurança](docs/operacao-e-seguranca.md) antes de public
 ## Contexto acadêmico e créditos
 
 A interface identifica o trabalho como uma defesa acadêmica N2 de DevOps e Computação em Nuvem.
-O botão de apresentação permanece desabilitado; não há slides integrados ao projeto.
+Os botões de apresentação abrem os 18 slides da N2 em `/#/apresentacao/1`, com navegação por teclado, visão geral e opção de tela cheia.
+O conteúdo segue [APRESENTACAO-N2.md](APRESENTACAO-N2.md); consulte o [guia da apresentação](docs/apresentacao.md) para uso e manutenção.
 
 Os créditos dos ícones estão em [public/creditos-icones.txt](public/creditos-icones.txt).
 As licenças de recursos visuais ficam em [src/assets/architecture/](src/assets/architecture/).

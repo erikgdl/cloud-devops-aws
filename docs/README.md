@@ -7,6 +7,7 @@ O código e as configurações são a fonte de verdade; disponibilidade pública
 
 - **Conhecer ou apresentar:** [visão geral](../README.md) → [arquitetura](arquitetura.md) → [CI/CD](ci-cd.md).
 - **Desenvolver localmente:** [desenvolvimento e Docker](desenvolvimento.md) → [direção visual](design-direction.md).
+- **Apresentar a N2:** [uso e manutenção dos 18 slides](apresentacao.md).
 - **Reproduzir a implantação:** [infraestrutura](infraestrutura.md) → [automação](automacao.md) → [implantação](implantacao.md).
 - **Administrar o servidor:** [operação e segurança](operacao-e-seguranca.md).
 
@@ -22,6 +23,7 @@ O código e as configurações são a fonte de verdade; disponibilidade pública
 | [CI/CD](ci-cd.md) | Referenciar gatilhos, permissões e atualização remota | [ci.yml](../.github/workflows/ci.yml), [cd.yml](../.github/workflows/cd.yml), [oidc.tf](../terraform/oidc.tf) |
 | [Operação e segurança](operacao-e-seguranca.md) | Validar serviços, investigar falhas e administrar acessos | [playbook](../ansible/playbook.yml), [Nginx](../nginx.conf), [SSM](../terraform/ssm.tf) |
 | [Direção visual](design-direction.md) | Explicar a organização visual do site | [estilos](../src/styles/), [seções](../src/pages/home/sections/) |
+| [Apresentação N2](apresentacao.md) | Usar e manter os 18 slides integrados | [conteúdo-fonte](../APRESENTACAO-N2.md), [slides/](../src/slides/) |
 
 ## Como interpretar os exemplos
 
