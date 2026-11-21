@@ -1,9 +1,5 @@
+import { ansible, aws, ubuntu, docker, terraform } from '../../../assets/architecture/logos'
 import ToolMark from '../../../components/ToolMark'
-import ansible from '../../../assets/architecture/ansible.svg'
-import aws from '../../../assets/architecture/amazonwebservices.svg'
-import ubuntu from '../../../assets/architecture/ubuntu.svg'
-import docker from '../../../assets/architecture/docker.svg'
-import terraform from '../../../assets/architecture/terraform.svg'
 import './portability.css'
 
 export default function Portability() {
@@ -33,8 +29,8 @@ export default function Portability() {
                 Ubuntu na EC2
               </dt>
               <dd>
-                <ToolMark logo={terraform} size={18} /> O Terraform cria a EC2 na VPC padrão existente.
-                O IP do servidor é preenchido manualmente no inventário.
+                <ToolMark logo={terraform} size={18} /> O Terraform cria a EC2 na VPC padrão
+                existente. O IP do servidor é preenchido manualmente no inventário.
               </dd>
             </div>
             <div data-reveal>
@@ -43,8 +39,8 @@ export default function Portability() {
                 Ubuntu compatível
               </dt>
               <dd>
-                O playbook pode configurar outro Ubuntu com APT, systemd, Python, SSH e sudo.
-                A compatibilidade precisa ser verificada.
+                O playbook pode configurar outro Ubuntu com APT, systemd, Python, SSH e sudo. A
+                compatibilidade precisa ser verificada.
               </dd>
             </div>
           </dl>

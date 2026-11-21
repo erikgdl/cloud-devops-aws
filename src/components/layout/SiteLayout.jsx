@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import PresentationButton from '../PresentationButton'
 import './layout.css'
 
-const repository = 'https://github.com/erikgdl/cloud-devops-aws'
+const repositoryUrl = 'https://github.com/erikgdl/cloud-devops-aws'
 
 function Brand() {
   return (
@@ -16,37 +16,39 @@ function Brand() {
 }
 
 export function SiteHeader() {
-  const [open, setOpen] = useState(false)
-  const toggle = useRef(null)
-  function closeMenu(event) {
-    if (event.key === 'Escape' && open) {
-      setOpen(false)
-      toggle.current.focus()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuToggleRef = useRef(null)
+
+  function handleHeaderKeyDown(event) {
+    if (event.key === 'Escape' && isMenuOpen) {
+      setIsMenuOpen(false)
+      menuToggleRef.current.focus()
     }
   }
+
   return (
-    <header onKeyDown={closeMenu}>
+    <header onKeyDown={handleHeaderKeyDown}>
       <div className="wrap mast">
         <Brand />
         <button
-          ref={toggle}
+          ref={menuToggleRef}
           className="menu"
-          aria-expanded={open}
+          aria-expanded={isMenuOpen}
           aria-controls="site-nav"
-          onClick={() => setOpen(!open)}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          {open ? 'Fechar' : 'Menu'}
+          {isMenuOpen ? 'Fechar' : 'Menu'}
         </button>
         <nav
           id="site-nav"
-          className={open ? 'expanded' : ''}
+          className={isMenuOpen ? 'expanded' : ''}
           aria-label="Principal"
-          onClick={() => setOpen(false)}
+          onClick={() => setIsMenuOpen(false)}
         >
           <a href="#projeto">Contexto</a>
           <a href="#arquitetura">Arquitetura</a>
           <a href="#tecnologias">Tecnologias</a>
-          <a href={repository}>GitHub</a>
+          <a href={repositoryUrl}>GitHub</a>
           <PresentationButton />
         </nav>
       </div>
@@ -61,7 +63,7 @@ export function SiteFooter() {
         <Brand />
         <p>DevOps e Computação em Nuvem</p>
         <a href="./creditos-icones.txt">Créditos dos ícones</a>
-        <a href={repository}>Repositório no GitHub ↗</a>
+        <a href={repositoryUrl}>Repositório no GitHub ↗</a>
       </div>
     </footer>
   )

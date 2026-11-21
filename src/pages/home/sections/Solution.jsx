@@ -2,7 +2,8 @@ const decisions = [
   {
     subject: 'Recursos',
     artifact: 'Definição Terraform',
-    description: 'A EC2, o Elastic IP, as regras de acesso e as permissões IAM são descritos em código.',
+    description:
+      'A EC2, o Elastic IP, as regras de acesso e as permissões IAM são descritos em código.',
   },
   {
     subject: 'Ambiente',

@@ -1,26 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
 
 export default function useVisibleMotion() {
-  const ref = useRef(null)
-  const [running, setRunning] = useState(false)
+  const elementRef = useRef(null)
+  const [isRunning, setIsRunning] = useState(false)
 
   useEffect(() => {
-    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
-    let visible = false
-    const update = () => setRunning(visible && !document.hidden && !preference.matches)
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let isVisible = false
+
+    function updateMotionState() {
+      setIsRunning(isVisible && !document.hidden && !motionPreference.matches)
+    }
+
     const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting
-      update()
+      isVisible = entry.isIntersecting
+      updateMotionState()
     })
-    observer.observe(ref.current)
-    document.addEventListener('visibilitychange', update)
-    preference.addEventListener('change', update)
+    observer.observe(elementRef.current)
+    document.addEventListener('visibilitychange', updateMotionState)
+    motionPreference.addEventListener('change', updateMotionState)
+
     return () => {
       observer.disconnect()
-      document.removeEventListener('visibilitychange', update)
-      preference.removeEventListener('change', update)
+      document.removeEventListener('visibilitychange', updateMotionState)
+      motionPreference.removeEventListener('change', updateMotionState)
     }
   }, [])
 
-  return [ref, running]
+  return [elementRef, isRunning]
 }

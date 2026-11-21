@@ -1,14 +1,16 @@
-import github from '../../../assets/architecture/github.png'
-import actions from '../../../assets/architecture/githubactions.svg'
-import aws from '../../../assets/architecture/amazonwebservices.svg'
-import terraform from '../../../assets/architecture/terraform.svg'
-import ansible from '../../../assets/architecture/ansible.svg'
-import ubuntu from '../../../assets/architecture/ubuntu.svg'
-import docker from '../../../assets/architecture/docker.svg'
-import './Architecture.css'
+import {
+  actions,
+  ansible,
+  aws,
+  docker,
+  github,
+  terraform,
+  ubuntu,
+} from '../../../assets/architecture/logos'
 import ToolMark from '../../../components/ToolMark'
+import './Architecture.css'
 
-const imagePath = [
+const imagePublishingSteps = [
   {
     name: 'GitHub',
     logo: github,
@@ -27,7 +29,7 @@ const imagePath = [
   },
 ]
 
-const hostPath = [
+const hostPreparationSteps = [
   {
     name: 'Terraform',
     logo: terraform,
@@ -74,8 +76,8 @@ export default function Architecture() {
           <p>Um fluxo publica a aplicação. O outro prepara a máquina que vai executá-la.</p>
         </div>
         <div className="architecture-paths">
-          <Pathway title="Publicar a imagem" steps={imagePath} />
-          <Pathway title="Preparar o host" steps={hostPath} />
+          <Pathway title="Publicar a imagem" steps={imagePublishingSteps} />
+          <Pathway title="Preparar o host" steps={hostPreparationSteps} />
         </div>
         <div className="runtime" data-reveal>
           <span className="runtime-marks" aria-hidden="true">
@@ -86,8 +88,8 @@ export default function Architecture() {
             <small>Execução no Ubuntu</small>
             <h3>Docker Compose</h3>
             <p>
-              No servidor, o Compose executa web, Caddy e Uptime Kuma. A imagem vem do GHCR;
-              o Caddy recebe HTTPS e encaminha por HTTP ao Nginx na porta 8080.
+              No servidor, o Compose executa web, Caddy e Uptime Kuma. A imagem vem do GHCR; o Caddy
+              recebe HTTPS e encaminha por HTTP ao Nginx na porta 8080.
             </p>
           </div>
           <span className="http-output">
