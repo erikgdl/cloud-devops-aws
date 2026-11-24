@@ -81,7 +81,7 @@ resource "aws_vpc_security_group_egress_rule" "outbound" {
 # Registrar a chave SSH publica
 resource "aws_key_pair" "devops" {
   key_name   = "${var.project_name}-key"
-  public_key = file(pathexpand("~/.ssh/cloud-devops-aws-nova.pub"))
+  public_key = file(pathexpand(var.ssh_public_key_path))
 
   tags = {
     Project = var.project_name

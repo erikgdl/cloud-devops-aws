@@ -30,3 +30,8 @@ variable "ssh_allowed_cidr" {
   }
 }
 
+variable "ssh_public_key_path" {
+  description = "Caminho da chave publica SSH"
+  type        = string
+}
+
