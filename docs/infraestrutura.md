@@ -99,10 +99,10 @@ Os exemplos de implantação salvam o plano fora do repositório.
 
 ## Chave SSH e dependências prévias
 
-O recurso `aws_key_pair.devops` lê `~/.ssh/cloud-devops-aws-nova.pub`.
+O recurso `aws_key_pair.devops` registra a chave pública SSH informada pela variável `ssh_public_key_path`, definida no arquivo `terraform.tfvars`.
 A chave pública deve existir nesse caminho na máquina que executa o Terraform.
 O Terraform não cria nem distribui a chave privada correspondente.
-O output SSH pressupõe essa chave privada em `~/.ssh/cloud-devops-aws-nova` e o usuário `ubuntu`.
+O acesso SSH à instância utiliza a chave privada correspondente e o usuário `ubuntu`.
 
 O estado também depende de um provedor IAM OIDC para `token.actions.githubusercontent.com`, previamente cadastrado na conta AWS.
 [oidc.tf](../terraform/oidc.tf) referencia esse provedor, mas não o cria.
@@ -125,7 +125,6 @@ O provisionamento da role não comprova que a instância já aparece como gerenc
 | --- | --- |
 | `ec2_public_ip` | Elastic IP da aplicação |
 | `ec2_instance_id` | ID da EC2 |
-| `ssh_command` | Comando de acesso com usuário e chave previstos |
 
 A consulta da AMI utiliza `most_recent = true`.
 Uma nova AMI encontrada pode levar o plano a propor substituição da instância.

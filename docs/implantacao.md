@@ -55,14 +55,14 @@ Prepare externamente:
 2. Bucket S3 próprio para o estado, com acesso ao objeto de estado e ao lockfile.
 3. VPC padrão e subnets com rotas funcionais na região escolhida.
 4. Provedor IAM OIDC de `token.actions.githubusercontent.com`, referenciado pelo Terraform.
-5. Chave pública em `~/.ssh/cloud-devops-aws-nova.pub` e chave privada correspondente sob seu controle.
+5. Chave pública SSH configurada na variável `ssh_public_key_path` do `terraform.tfvars` e chave privada correspondente sob seu controle.
 6. Permissões para as consultas e recursos definidos, além do acesso ao backend.
 
 Confira a conta e a existência da chave pública, sem imprimir a chave:
 
 ```bash
 aws sts get-caller-identity --profile devops-terraform
-test -f ~/.ssh/cloud-devops-aws-nova.pub
+test -f ~/.ssh/sua-chave.pub
 ```
 
 Bucket e provedor OIDC não são criados pelo projeto.
@@ -122,7 +122,6 @@ Somente após revisar o plano e aceitar seus efeitos e custos, aplique o arquivo
 terraform -chdir=terraform apply "$TF_PLAN_DIR/implantacao.tfplan"
 terraform -chdir=terraform output -raw ec2_public_ip
 terraform -chdir=terraform output -raw ec2_instance_id
-terraform -chdir=terraform output -raw ssh_command
 ```
 
 Use o IP no DNS e no inventário.
