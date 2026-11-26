@@ -162,7 +162,7 @@ O conteúdo segue [APRESENTACAO-N2.md](APRESENTACAO-N2.md); consulte o [guia da 
 Os créditos dos ícones estão em [public/creditos-icones.txt](public/creditos-icones.txt).
 As licenças de recursos visuais ficam em [src/assets/architecture/](src/assets/architecture/).
 
-[COMMIT DE TEST 02]
+[COMMIT DE TEST 03]
 
 ## Contribuição e licença
 
